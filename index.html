@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - Gimnasio</title>
+    <script src="./js/app.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestión - Gimnasio</h1>
+            <div class="actions">
+                <button class="btn-primary" onclick="showModal()">Nuevo Cliente</button>
+            </div>
+        </header>
+
+        <!-- Estadísticas -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Clientes</h3>
+                <div id="totalClientes" class="value">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Clientes Activos</h3>
+                <div id="clientesActivos" class="value">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Clientes Inactivos</h3>
+                <div id="clientesInactivos" class="value">0</div>
+            </div>
+        </div>
+
+        <!-- Búsqueda y Filtros -->
+        <div class="search-filters">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por nombre, email o teléfono..."
+                    onkeyup="filtrarClientes()">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="todos" onclick="cambiarFiltro('todos')">
+                    Todos
+                </button>
+                <button class="filter-btn" data-filter="activos" onclick="cambiarFiltro('activos')">
+                    Activos
+                </button>
+                <button class="filter-btn" data-filter="inactivos" onclick="cambiarFiltro('inactivos')">
+                    Inactivos
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de clientes -->
+        <div class="table-wrapper" id="tableWrapper">
+            <div class="scroll-indicator">← Desliza para ver más →</div>
+            <table id="clientesTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="clientesBody"></tbody>
+            </table>
+        </div>
+        <div id="noResults" class="no-results" style="display: none;">
+            No se encontraron clientes que coincidan con la búsqueda
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Nuevo Cliente</h2>
+            <form id="clienteForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" required>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" onclick="hideModal()" style="background-color: #838383;">Cancelar</button>
+                    <button type="submit" id="btnAddCliente" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>
