@@ -285,10 +285,14 @@ function filtrarClientes() {
     terminoBusqueda = document.getElementById('searchInput').value.toLowerCase();
     
     let clientesFiltrados = clientesData.filter(cliente => {
-        const cumpleFiltro = filtroActual === 'todos' ? true :
-            filtroActual === 'activos' ? 
-                calcularDiasRestantes(cliente.fechaVencimiento) >= 0 :
-                calcularDiasRestantes(cliente.fechaVencimiento) < 0;
+        const diasRestantes = calcularDiasRestantes(cliente.fechaVencimiento);
+        
+        // Lógica de filtrado actualizada
+        const cumpleFiltro = 
+            filtroActual === 'todos' ? true :
+            filtroActual === 'activos' ? diasRestantes >= 0 :
+            filtroActual === 'proximosVencer' ? (diasRestantes <= 5 && diasRestantes >= 0) :
+            diasRestantes < 0; // caso inactivos
 
         const cumpleBusqueda = terminoBusqueda === '' ? true :
             `${cliente.nombre} ${cliente.apellido}`.toLowerCase().includes(terminoBusqueda) ||
@@ -313,6 +317,51 @@ function filtrarClientes() {
     }
 }
 
+document.getElementById('btnProximosVencer').addEventListener('click', function() {
+    filtroActual = 'proximosVencer';
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    this.classList.add('active');
+    filtrarClientes();
+});
+// Función para verificar clientes próximos a vencer
+function verificarClientesProximosAVencer(clientes) {
+    const clientesProximosAVencer = clientes.filter(cliente => {
+        const diasRestantes = calcularDiasRestantes(cliente.fechaVencimiento);
+        return diasRestantes <= 5 && diasRestantes >= 0;
+    });
+
+    if (clientesProximosAVencer.length > 0) {
+        let mensaje = '<ul style="list-style: none; padding: 0;">';
+        clientesProximosAVencer.forEach(cliente => {
+            const diasRestantes = calcularDiasRestantes(cliente.fechaVencimiento);
+            mensaje += `
+                <li style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>${cliente.nombre} ${cliente.apellido}</strong><br>
+                    <span style="color: #ff9800;">Vence en ${diasRestantes} días</span>
+                </li>`;
+        });
+        mensaje += '</ul>';
+
+        Swal.fire({
+            title: '¡Atención! Membresías próximas a vencer',
+            html: mensaje,
+            icon: 'warning',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3085d6',
+            background: '#fff',
+            showCloseButton: true,
+            customClass: {
+                container: 'custom-swal-container',
+                popup: 'custom-swal-popup',
+                content: 'custom-swal-content'
+            }
+        });
+    }
+}
+
+
 // Modificar la función cargarClientes
 async function cargarClientes() {
     try {
@@ -320,12 +369,23 @@ async function cargarClientes() {
         clientesData = await response.json();
         actualizarEstadisticas();
         filtrarClientes();
+        
+        // Agregar la verificación de clientes próximos a vencer
+        verificarClientesProximosAVencer(clientesData);
     } catch (error) {
         console.error('Error al cargar clientes:', error);
-        alert('Error al cargar los clientes');
+        Swal.fire({
+            title: 'Error',
+            text: 'Error al cargar los clientes',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+        });
     }
 }
 
+
+
+
 // Cargar clientes al iniciar y actualizar cada minuto
 cargarClientes();
-setInterval(cargarClientes, 60000);
+
